@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="NFC Message" />
+  <title>NFC Secret Message</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #6e6e73;
+  margin-bottom: 28px;
+}
+
+.tabs {
+  display: flex;
+  background: #e5e5ea;
+  border-radius: 10px;
+  padding: 3px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: #6e6e73;
+  transition: all 0.2s;
+}
+
+.tab.active {
+  background: #fff;
+  color: #1d1d1f;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+
+label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+  margin-top: 18px;
+}
+
+label:first-of-type { margin-top: 0; }
+
+textarea, input[type="text"], input[type="password"] {
+  width: 100%;
+  border: 1.5px solid #e5e5ea;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #1d1d1f;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+textarea:focus, input:focus {
+  border-color: #0071e3;
+  background: #fff;
+}
+
+textarea { min-height: 100px; }
+
+.btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #0071e3;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.btn:hover { background: #0077ed; }
+.btn:active { background: #005bbf; }
+
+.result-box {
+  margin-top: 20px;
+  background: #f5f5f7;
+  border-radius: 12px;
+  padding: 16px;
+  display: none;
+}
+
+.result-box.show { display: block; }
+
+.result-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+}
+
+.result-text {
+  font-size: 0.9rem;
+  word-break: break-all;
+  color: #1d1d1f;
+  line-height: 1.5;
+}
+
+.copy-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  border: 1.5px solid #0071e3;
+  border-radius: 10px;
+  background: transparent;
+  color: #0071e3;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover { background: #f0f7ff; }
+
+.error {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff2f2;
+  border-radius: 10px;
+  color: #c0392b;
+  font-size: 0.88rem;
+  display: none;
+}
+
+.error.show { display: block; }
+
+.success-icon { color: #34c759; font-size: 1.1rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.instructions {
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: #6e6e73;
+  line-height: 1.6;
+  background: #f5f5f7;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.instructions strong { color: #1d1d1f; }
+```
+
+  </style>
+</head>
+<body>
+
+<h1>NFC Secret Message</h1>
+<p class="subtitle">Encrypt and decrypt hidden messages</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('encrypt')">✉️ Encrypt</button>
+  <button class="tab" onclick="switchTab('decrypt')">🔓 Decrypt</button>
+</div>
+
+<!-- ENCRYPT PANEL -->
+
+<div class="card">
+  <div class="panel active" id="encrypt-panel">
+    <label>Your Message</label>
+    <textarea id="enc-message" placeholder="Type your secret message here..."></textarea>
+
+```
+<label>Password</label>
+<input type="password" id="enc-password" placeholder="Choose a strong password" />
+
+<button class="btn" onclick="encrypt()">Encrypt Message</button>
+
+<div class="result-box" id="enc-result">
+  <div class="result-label">✅ Encrypted Text — Copy this to your NFC tag</div>
+  <div class="result-text" id="enc-output"></div>
+  <button class="copy-btn" onclick="copyResult()">Copy to Clipboard</button>
+</div>
+
+<div class="error" id="enc-error"></div>
+
+<div class="instructions">
+  <strong>How to write to your tag:</strong><br>
+  1. Encrypt your message above<br>
+  2. Copy the encrypted text<br>
+  3. Open <strong>NFC Tools</strong> → Write → Add Record → Text<br>
+  4. Paste and write to your NTAG216 sticker
+</div>
+```
+
+  </div>
+
+  <!-- DECRYPT PANEL -->
+
+  <div class="panel" id="decrypt-panel">
+    <label>Encrypted Text</label>
+    <textarea id="dec-input" placeholder="Paste the encrypted text from your NFC tag..."></textarea>
+
+```
+<label>Password</label>
+<input type="password" id="dec-password" placeholder="Enter the password" />
+
+<button class="btn" onclick="decrypt()">Decrypt Message</button>
+
+<div class="result-box" id="dec-result">
+  <div class="result-label"><span class="success-icon">✓</span> Decrypted Message</div>
+  <div class="result-text" id="dec-output"></div>
+</div>
+
+<div class="error" id="dec-error"></div>
+
+<div class="instructions">
+  <strong>How to read from your tag:</strong><br>
+  1. Tap your phone on the NFC sticker<br>
+  2. Copy the encrypted text that appears<br>
+  3. Paste it above and enter the password
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+  // ── Tab switching ──────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'encrypt') || (i === 1 && tab === 'decrypt'));
+    });
+    document.getElementById('encrypt-panel').classList.toggle('active', tab === 'encrypt');
+    document.getElementById('decrypt-panel').classList.toggle('active', tab === 'decrypt');
+  }
+
+  // ── Crypto helpers ─────────────────────────────────────────────
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 480000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  function toBase64(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+  }
+
+  function fromBase64(str) {
+    return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+  }
+
+  // ── Encrypt ───────────────────────────────────────────────────
+  async function encrypt() {
+    const msg  = document.getElementById('enc-message').value.trim();
+    const pass = document.getElementById('enc-password').value;
+    const errEl = document.getElementById('enc-error');
+    const resEl = document.getElementById('enc-result');
+
+    errEl.classList.remove('show');
+    resEl.classList.remove('show');
+
+    if (!msg)  { showError('enc-error', 'Please enter a message.'); return; }
+    if (!pass) { showError('enc-error', 'Please enter a password.'); return; }
+
+    try {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv   = crypto.getRandomValues(new Uint8Array(12));
+      const key  = await deriveKey(pass, salt);
+      const enc  = new TextEncoder();
+      const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(msg));
+
+      const result = toBase64(salt) + ':' + toBase64(iv) + ':' + toBase64(ciphertext);
+      document.getElementById('enc-output').textContent = result;
+      resEl.classList.add('show');
+    } catch(e) {
+      showError('enc-error', 'Encryption failed. Please try again.');
+    }
+  }
+
+  // ── Decrypt ───────────────────────────────────────────────────
+  async function decrypt() {
+    const input = document.getElementById('dec-input').value.trim();
+    const pass  = document.getElementById('dec-password').value;
+    const errEl = document.getElementById('dec-error');
+    const resEl = document.getElementById('dec-result');
+
+    errEl.classList.remove('show');
+    resEl.classList.remove('show');
+
+    if (!input) { showError('dec-error', 'Please paste the encrypted text.'); return; }
+    if (!pass)  { showError('dec-error', 'Please enter the password.'); return; }
+
+    try {
+      const parts = input.split(':');
+      if (parts.length !== 3) throw new Error('Invalid format');
+
+      const salt       = fromBase64(parts[0]);
+      const iv         = fromBase64(parts[1]);
+      const ciphertext = fromBase64(parts[2]);
+      const key        = await deriveKey(pass, salt);
+
+      const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+      const text = new TextDecoder().decode(decrypted);
+
+      document.getElementById('dec-output').textContent = text;
+      resEl.classList.add('show');
+    } catch(e) {
+      showError('dec-error', '❌ Wrong password or corrupted text.');
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  async function copyResult() {
+    const text = document.getElementById('enc-output').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
+    } catch(e) {
+      alert('Please manually select and copy the text above.');
+    }
+  }
+</script>
+
+</body>
+</html>
