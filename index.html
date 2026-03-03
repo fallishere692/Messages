@@ -331,9 +331,18 @@ textarea { min-height: 100px; }
     }
   }
 
+  // ── Clean pasted NFC text (strip tag ID and junk) ─────────────
+  function cleanNFCText(raw) {
+    // The encrypted format is three base64 segments separated by colons
+    // e.g. AAAA==:BBBB:CCCC  — we extract just that portion
+    const match = raw.match(/([A-Za-z0-9+/=]+=:[A-Za-z0-9+/=]+:[A-Za-z0-9+/=]+)/);
+    return match ? match[1] : raw.trim();
+  }
+
   // ── Decrypt ───────────────────────────────────────────────────
   async function decrypt() {
-    const input = document.getElementById('dec-input').value.trim();
+    const raw   = document.getElementById('dec-input').value;
+    const input = cleanNFCText(raw);
     const pass  = document.getElementById('dec-password').value;
     const errEl = document.getElementById('dec-error');
     const resEl = document.getElementById('dec-result');
